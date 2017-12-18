@@ -1,0 +1,40 @@
+language: julia
+os:
+  - linux
+julia:
+  - 0.6
+notifications:
+  email: false
+git:
+  depth: 99999999
+cache:
+  timeout: 1000
+  directories:
+    - downloads
+env:
+  global:
+    - BINARYBUILDER_DOWNLOADS_CACHE=downloads
+    - BINARYBUILDER_AUTOMATIC_APPLE=false
+sudo: required
+
+# Before anything else, get the latest versions of things
+before_script:
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryProvider.jl")'
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryBuilder.jl"); Pkg.build()'
+
+script:
+  - julia build_tarballs.jl
+
+
+deploy:
+    provider: releases
+    api_key:
+        # Note; this api_key is only valid for tshort/SundialsKLUBuilder2; you need
+        # to make your own: https://docs.travis-ci.com/user/deployment/releases/
+        secure: UAW7mXmtFPYndADrHfbhwC1Ir9sCp70Hb29FjFaq90p87O2fbqFQlNd8mFKYXQENS2LclJklYmeEA1Ovz+iS2/p7ySK+ia7vS3g18FdHYMIPZgxDSuJX8z0JdnB/irFjlptVMYgKSiS9T4ipD87FjdvmcXPge5OjVi8gJ/zhJgE7bvt8+fnFHXVKeqrCDAV4dqFgMVZugCcE5t2e3nrpFy3+p07l45yfOWmmHpnEKfw95ACjsfcngpTFvpkMot5rjszMwU2iLmfJxG9dJ7HfdX8wfpd1PV1QIgrPeVSj0ICAvS7NKQxfkCpeV+g5e8+2iGSK1ayq0CT8pGZzJ8HrPZ28K7TseTYlxXwsv8e3f1YruOy24cS9pbQnf/GbtcMFD1z49GcRtXlBL0n2tgo7LeQNpf6xDLh0vfZ3CHOJBgb1zm4JhlwuztM8pvlwBUaSw5YdOncLvCiEoyDaCE5Scmuvw2tR8ocLQ+Di1KoEqaOXdmH6BWkRwZNYuJrwRCHoukBUNNnc0g0WqsNUmNBdstObxXukmMf/l/y3A5Jk/Yun1Txv9Dk89YcNANOff5VIUmJ/uTcxWxsoHfbDnEZOzxBOOZfTrqUvT7UhYswBe6ujfuZDC70jUsJI856D0ufLmTOHOFS/FEMNpSVQt09TdthJbPZ4eTu1ML4deARUxls=
+    file_glob: true
+    file: products/*
+    skip_cleanup: true
+    on:
+        repo: tshort/SundialsKLUBuilder2
+        tags: true
